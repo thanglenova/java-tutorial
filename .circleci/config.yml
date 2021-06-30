@@ -23,6 +23,9 @@ jobs:
             done
             echo Failed waiting for MySQL && exit 1 
       - run:
+          name: Wait for Database Port
+          command: while ! nc -z 127.0.0.1 3306 ; do sleep 1 ; done
+      - run:
           name: Install MySQL CLI; Import dummy data; run an example query
           command: |
             sudo apt-get update
