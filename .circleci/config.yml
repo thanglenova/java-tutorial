@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
   
 jobs:
   build:
@@ -7,12 +7,18 @@ jobs:
       - image: circleci/mysql:5.7
         environment:
           MYSQL_HOST: 127.0.0.1
-          MYSQL_ROOT_PASSWORD: rootpw
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: user
-          MYSQL_PASSWORD: passw0rd
+          MYSQL_ROOT_PASSWORD: 1234
+          MYSQL_DATABASE: task-test
+          MYSQL_USER: spring
+          MYSQL_PASSWORD: Spring12345
+    working_directory: ~/repo
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
     steps:
       - checkout
+      - run: ./mvnw test
       - run:
           # Our primary container isn't MYSQL so run a sleep command until it's ready.
           name: Waiting for MySQL to be ready
@@ -25,10 +31,12 @@ jobs:
             done
             echo Failed waiting for MySQL && exit 1
       - run:
-          name: Install MySQL CLI; Import dummy data; run an example query
+          name: Install MySQL CLI; Import todolist-test data; run an example query
           command: |
-            sudo apt-get update
             sudo apt install -y mysql-client
-            mysql -h 127.0.0.1 -P 3306 -u root --password=rootpw --execute="use test_db;"
-      - run:
-          mvn test
+            mysql -h 127.0.0.1 -P 3306 -u root --password=1234 --execute="use task-test;"
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
