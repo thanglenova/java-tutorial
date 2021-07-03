@@ -18,7 +18,7 @@ jobs:
       TERM: dumb
     steps:
       - checkout
-      - run: ./mvnw test
+      - run: mvn test
       - run:
           # Our primary container isn't MYSQL so run a sleep command until it's ready.
           name: Waiting for MySQL to be ready
