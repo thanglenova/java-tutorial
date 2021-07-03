@@ -29,6 +29,6 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt install -y mysql-client
-            mysql -h 127.0.0.1 -P 3306 -u root --password=1234 --execute="use test_db;"
+            mysql -h 127.0.0.1 -P 3306 -u root --password=rootpw --execute="use test_db;"
       - run:
           mvn test
