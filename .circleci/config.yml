@@ -9,7 +9,7 @@ jobs:
           DB_ROOT_USER: root
           DB_URL: jdbc:mysql://localhost:3306/springguide
           DB_DRIVER: com.mysql.cj.jdbc.Driver
-          DB_PASS: ""
+          DB_PASS: Ranvirsingh
     working_directory: ~/repo
     environment:
       # Customize the JVM maximum heap limit
