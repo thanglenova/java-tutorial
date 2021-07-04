@@ -1,36 +1,45 @@
-
 version: 2
+  
 jobs:
   build:
     docker:
-    - image: circleci/openjdk:11.0.3-jdk-stretch
-      environment:
-        DB_ROOT_USER: root
-        DB_URL: jdbc:mysql://localhost:3306/task_test
-        DB_DRIVER: com.mysql.cj.jdbc.Driver
-        DB_PASS: ""
-        MAVEN_OPTS: -Xmx3200m
-    - image: circleci/mysql:5.7
-      environment:
-        MYSQL_ALLOW_EMPTY_PASSWORD: yes
-        MYSQL_ROOT_PASSWORD: ''
+      - image: circleci/openjdk:11.0.3-jdk-stretch
+      - image: circleci/mysql:5.7
+        environment:
+          DB_ROOT_USER: root
+          DB_URL: jdbc:mysql://localhost:3306/springguide
+          DB_DRIVER: com.mysql.cj.jdbc.Driver
+          DB_PASS: ""
     working_directory: ~/repo
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
     steps:
-    - checkout
-    - run:
-        name: Wait for Database Connection
-        command: dockerize -wait tcp://localhost:3306 -timeout 1m
-    - run: sudo apt install -y mysql-client
-    - run: mysql -h 127.0.0.1 -u root --execute="create database test_db"
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-        -  v1-dependencies-{{ checksum "pom.xml" }}
-        -  v1-dependencies-
-    - run: mvn dependency:go-offline
-    - save_cache:
-        paths:
-        - ~/.m2
-        key: v1-dependencies-{{ checksum "pom.xml" }}
-        # run tests!
-    - run: mvn test
+      - checkout
+      - run:
+          # Our primary container isn't MYSQL so run a sleep command until it's ready.
+          name: Waiting for MySQL to be ready
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
+      - run:
+          name: Install MySQL CLI; Import todolist-test data; run an example query
+          command: |
+            sudo apt-get install default-mysql-client
+            mysql -h 127.0.0.1 -P 3306 -u root --password=Ranvirsingh --execute="use springguide;"
+      - restore_cache:
+          keys:
+          -  v1-dependencies-{{ checksum "pom.xml" }}
+          # fallback to using the latest cache if no exact match is found
+          -  v1-dependencies-
+      - run: mvn dependency:go-offline
+      - save_cache:
+          paths:
+          - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+          # run tests!
+      - run: mvn integration-test
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
