@@ -7,9 +7,10 @@ jobs:
       - image: circleci/mysql:5.7
         environment:
           DB_ROOT_USER: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
           DB_URL: jdbc:mysql://localhost:3306/springguide
           DB_DRIVER: com.mysql.cj.jdbc.Driver
-          DB_PASS: Ranvirsingh
+          DB_PASS: ""
     working_directory: ~/repo
     environment:
       # Customize the JVM maximum heap limit
