@@ -21,11 +21,7 @@ jobs:
           # Our primary container isn't MYSQL so run a sleep command until it's ready.
           name: Waiting for MySQL to be ready
           command: dockerize -wait tcp://localhost:3306 -timeout 1m
-      - run:
-          name: Install MySQL CLI; Import todolist-test data; run an example query
-          command: |
-            sudo apt-get install mysql-client
-            mysql -h 127.0.0.1 -P 3306 -u root --password=Ranvirsingh --execute="use springguide;"
+      - run: sudo apt-get install mysql-client
       - restore_cache:
           keys:
           -  v1-dependencies-{{ checksum "pom.xml" }}
